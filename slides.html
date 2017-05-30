@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Global Fishing Watch | Google Earth Engine</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Grant R. McDermott" />
+    <link rel="stylesheet" href="https://cdn.rawgit.com/dreampulse/computer-modern-web-font/master/fonts.css" type="text/css" />
+    <link rel="stylesheet" href="css/beamer.css" type="text/css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Global Fishing Watch |</br> Google Earth Engine
+## AERE 2017 Workshop
+### Grant R. McDermott
+### 2017/05/30
+
+---
+
+
+
+
+
+
+## About me
+
+- Environmental economist interested in big data and spatial analysis (among other things).
+- Incoming faculty at the University of Oregon.
+- Before that: Finishing up a postdoc at UCSB under Chris Costello.
+
+&lt;i class="fa fa-globe"&gt;&lt;/i&gt; &lt;a href="http://www.grantmcdermott.com" target="_blank"&gt;www.grantmcdermott.com&lt;/a&gt;&lt;/br&gt;
+&lt;i class="fa fa-github"&gt;&lt;/i&gt; &lt;a href="https://github.com/grantmcdermott" target="_blank"&gt;github.com/grantmcdermott&lt;/a&gt;&lt;/br&gt;
+&lt;i class="fa fa-twitter"&gt;&lt;/i&gt; &lt;a href="https://twitter.com/grant_mcdermott" target="_blank"&gt;@grant_mcdermott&lt;/a&gt;&lt;/br&gt;
+
+---
+
+## Goals for today
+
+1. Introduce you to Global Fishing Watch
+2. Introduce you to Google Earth Engine
+3. Show you an application that combines 1. and 2.
+
+---
+count: false
+
+## Goals for today
+
+1. Introduce you to Global Fishing Watch
+2. Introduce you to Google Earth Engine
+3. Show you an application that combines 1. and 2.
+
+Meta goal: Encourage you to use these amazing tools yourself.
+
+---
+class: inverse, center, middle
+
+# Global Fishing Watch
+
+---
+
+## Introduction
+
+- Global Fishing Watch (GFW) is a joint initiative between Google, Skytruth and Oceana.
+- GFW offers unprecented insight into *global* fishing activity.
+  - Includes locations that were previously inaccesible to outside observers.
+  - Includes a suite of tools for accessing and analysing the data. (More on this later.)
+- Economists are under-represented among the set of current GFW research partners.
+  - We hope that this will change when the data are made public in the next 2-3 months.
+  - AERE workshop participants are getting a head start!
+   
+???
+
+- Low-hanging fruit.
+
+---
+
+## Where does GFW get its data?
+
+- Ships use AIS (Automatic Identification System) for martime safety.
+  - Broadcast location to navigate and avoid collisions.
+  - Includes info on vessel ID, flag, speed, tonnage, length, destination, etc. 
+  - Problems: Location "spoofing". Some fields are incorrectly entered by owner. Raw data contains many mistakes.
+- Satellite (and terrestrial systems) can receive and record AIS messages too.
+- AIS is *big* data... 
+  - 22 billion messages from 250k industrial fishing vessels over 2012-2016.
+  - 20 million messages being added per day (and growing).
+
+???
+
+- AIS is required on all vessels &gt;300 tons on international voyages. Many countries require smaller vessels to use AIS within their EEZs as well. 
+- A moving vessel broadcasts a position message every 2 to 20 seconds 
+- An anchored vessel every 3 to 6 minutes.
+- GFW average is 50 satellite positions per vessel per day.
+
+---
+
+## Density of AIS
+
+![](pics/ais-density.png)
+
+
+---
+
+## Processing and classfying the data
+
+- Short version:&lt;sup&gt;[1]&lt;/sup&gt; Cloud computing and machine learning (convolutional neural network).
+  - Probability that a vessel *is* fishing, `\(P \in [0,1]\)`.
+  - What *type* of fishing is most likely (trawl, long line, purse sein, etc.)
+- Training data: 240k hours’ worth of AIS data from 624 vessels (569k AIS positions) that have been hand labelled by fisheries experts and/or validated with logbook data.
+
+.footnote[
+[1] &lt;a href="https://www.youtube.com/embed/uaehB3PJfr0" target="_blank"&gt;Lucius Fox&lt;/a&gt;: "I just wanted you to know how hard it was." 
+]
+  
+???
+
+- There are actually two CNNs:
+  1. One to identify vessel characteristics, including length, engine power, and vessel type. (Training data: 73,994 vessels matched to official fleet registries, including about 13,500 fishing vessels.) 
+  2. A second to detect which AIS positions were indicative of fishing activity. (Training data: 240,000 hours’ worth of AIS data, from 624 vessels, with over 569,000 AIS positions labelled by fisheries experts.)
+
+
+---
+
+## Processing and classfying the data
+
+&lt;div class="video_container"&gt;
+  &lt;video width="700" height="400" controls="controls" allowfullscreen="true"&gt;
+    &lt;source src="pics/gfw-train.mov"&gt;
+  &lt;/video&gt; 
+&lt;/div&gt;
+
+---
+
+## GFW dataset
+
+- The cleaned GFW dataset contains 70k likely fishing vessels.
+  - AIS-equipped vessels account for 75% of offshore fisheries (&gt;100 nm from land).
+- Individual vessel tracts.
+  - Where, when and for how long a vessel was fishing.
+  - What type of fishing were they doing.
+- Other covariates of interest: Flag, tonnage, length, speed, etc.
+
+???
+
+- Small fraction of the world's ~2.5 million motorized fishing vessels... but it contains a majority of active vessels over 24 metres.
+
+---
+
+## Let's explore the data
+
+- &lt;a href="http://globalfishingwatch.org/map/?redirect_login=true" target="_blank"&gt;Live session&lt;/a&gt;.
+
+---
+count: false
+
+## Let's explore the data
+
+- &lt;a href="http://globalfishingwatch.org/map/?redirect_login=true" target="_blank"&gt;Live session&lt;/a&gt;.
+- The GFW website is great for (visual) exploration.
+- It is meant to serve as tool for policy engagement and citizen science. 
+- However, it offers limited scope for in-depth analysis and research. 
+  - No API for accessing and downloading the data *en masse*, or for performing statistical analysis.
+- Enter Google Earth Engine...
+
+
+---
+
+class: inverse, center, middle
+
+# Google Earth Engine
+
+---
+
+## Planetary-scale analysis
+
+- Google has done the hard work of ingesting (much of) the world's public satellite and remote sensing data.
+  - Landsat, Sentinel, MODIS, NOAA/NCEP/NCAR, etc.
+- Paired with vast, collacted computational power.
+  - "Bring your code to the data."
+- In-browser console editor (Javascript) or Python API.
+- Seemlessly interacts with many other products within the Google Ecosystem.
+  - GoogleDrive, Cloud storage, TensorFlow ML library, etc.
+- I highly recommend applying for next years' Annual GEE User Summit.
+
+???
+
+- 200 datasets, 5 million images (4k being added every day), 5 petabytes of data... 
+- Automatic version control plus shareable scripts make for good research practice and reproducible science.
+
+---
+
+## From my inbox last week...
+
+&lt;i&gt;
+&gt; Hey Grant,&lt;/br&gt;&lt;/br&gt;
+It took me 2 days to download the data[...] So I guess the work is reduced from about 6-10 Months to max 7 days.&lt;/br&gt;&lt;/br&gt;
+Thanks a ton. This is amazing.&lt;/br&gt;&lt;/br&gt;
+Best,&lt;/br&gt;
+M
+
+&lt;/i&gt;
+
+???
+
+- Don't just take my word for it: Here's a recent email that I received after suggesting someone switch to GEE.
+- It's hard to overstate how valuable that time difference can be.
+- For a graduate student, that's the difference between finishing you PhD on time and having to find funding (student debt?) for another year.
+- Or, having the time to write a great job market paper versus to an average one.
+
+---
+
+## Let's explore GEE
+
+- &lt;a href="https://code.earthengine.google.com/6267d5e6ae8435a9db3b9b1058089f7c" target="_blank"&gt;Live session&lt;/a&gt;.
+
+---
+count: false
+
+## Let's explore GEE
+
+- &lt;a href="https://code.earthengine.google.com/6267d5e6ae8435a9db3b9b1058089f7c" target="_blank"&gt;Live session&lt;/a&gt;.
+- GEE is an amazing tool for remote sensing data and spatial analysis (in general).
+- For most researchers, it will also be the primary platform for accessing GFW data.
+- Caveat: GFW rasters within GEE will lose some information.
+  - E.g. No individual vessel IDs.
+
+---
+
+## Let's take stock before continuing
+
+- What can we use GFW data for?
+  1. Policy effectiveness and spillovers.
+  2. Interaction between labour/energy/etc. markets and fishing activity.
+  3. Fisheries supply and demand elasticities relative to broader economic cycles.
+  4. Validation of fisheries catch and effort data.
+  5. Continuous data source ready to be paired with natural experiments. 
+  6. Etcetera, etcetera.
+
+---
+count: false
+
+## Let's take stock before continuing
+
+- What can we use GFW data for?
+  1. **Policy effectiveness and spillovers.**
+  2. Interaction between labour/energy/etc. markets and fishing activity.
+  3. Fisheries supply and demand elasticities relative to broader economic cycles.
+  4. Validation of fisheries catch and effort data.
+  5. Continuous data source ready to be paired with natural experiments. 
+  6. Etcetera, etcetera.
+- I'll show you an example application of type 1.
+
+---
+
+class: inverse, center, middle
+
+# Application:
+
+## "The Blue Paradox"
+
+*W.I.P. with Chris Costello, Kyle Meng and Gavin McDonald*
+
+---
+
+## Introduction
+
+- Marine Protected Areas (MPAs) and no-take zones (NTZs) are important tools in marine conservation efforts.
+- However, their efficacy remains in question.
+  - "Paper parks" (e.g. [Edgar at al., 2014](http://www.nature.com/nature/journal/v506/n7487/full/nature13022.html); [Halpern, 2014](http://www.nature.com/nature/journal/v506/n7487/full/nature13053.html))
+- Data limitations, questionable modelling?
+- Most studies ignore incentives and behavourial changes: 
+  - Simple before/after (inside/outside) comparisons of abundance.
+- **Blue paradox:** Delay between MPA announcement and enforcement creates incentive to mine down the stock.
+
+???
+
+- Edgar et al.'s five features: No take, well enforced, old (&gt;10 years), large (&gt;100km2), and isolated by deep water or sand.
+- Current MPA literature does not account for the fact that the announcement itself may trigger a response in fishing effort.
+- Blue paradox idea draws inspiration from the Green Paradox ([Sinn, 2012](https://mitpress.mit.edu/books/green-paradox)) and related literature on preemptive habitat destruction under the E.S.A. ([Lueck and Michaels, 2003](http://www.masonlec.org/site/rte_uploads/files/Manne/2014.12.06/LueckMicheal_Class%208.pdf))
+
+---
+
+## Approach
+
+- **Research question:** Does an MPA announcement trigger increased fishing activity?
+- Focus on the Phoenix Island Protected Area (PIPA).
+- Identification: Spatial DiD.
+  - Fishing effort per km in neighbouring "treated" (MPA) vs "control" (non-MPA) areas.
+- NB: Fishers have no incentive to lie about their position pre-enforcement.
+
+---
+
+## Analysis
+
+- [GEE live session](https://code.earthengine.google.com/6267d5e6ae8435a9db3b9b1058089f7c).
+
+???
+
+- I'm using a draft version of the GFW raster data that hasn't been made public yet. 
+- Unfortunately, I can't share my full GEE script yet until that's done. 
+
+---
+
+## Results (early)
+
+&lt;div align="center"&gt;
+&lt;img src="pics/fishing-normalized.png" height=500&gt;
+&lt;/div&gt;
+
+---
+
+## Conclusions (early)
+
+- MPA announcement appears to trigger a preemptive fishing response.
+- Could even lead to a long-term decline in fish stocks under certain conditions
+  - E.g. Surge in fishing pushes a stock below some min. population threshold.
+- More work still to be done, but suggests that announcement and enforcement gap should be closed.
+  - Granularity of the data should allow us to test different causal hypotheses (e.g. spatial knowledge).
+- This kind of analysis is only being made possible now thanks to data innovations like GFW and GEE.
+
+---
+class: inverse, center
+
+&lt;/br&gt;&lt;/br&gt;&lt;/br&gt;&lt;/br&gt;&lt;/br&gt;&lt;/br&gt;
+
+## Thank you!
+
+### Questions?
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {window.dispatchEvent(new Event('resize'));});</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
