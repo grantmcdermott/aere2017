@@ -131,11 +131,7 @@ class: inverse, center, middle
 
 ## Processing and classfying the data
 
-<div class="video_container">
-  <video width="700" height="400" controls="controls" allowfullscreen="true">
-    <source src="pics/gfw-train.mov">
-  </video> 
-</div>
+![](pics/gfw-train.gif)
 
 ---
 
